@@ -12,6 +12,7 @@
 precision highp float;
 
 uniform vec4 u_Color; // The color with which to render this instance of geometry.
+uniform vec4 u_Time;
 
 // These are the interpolated values out of the rasterizer, so you can't know
 // their specific values without knowing the vertices that contributed to them
@@ -39,5 +40,6 @@ void main()
                                                             //lit by our point light are not completely black.
 
         // Compute final shaded color
-        out_Col = vec4(diffuseColor.rgb * lightIntensity, diffuseColor.a);
+        out_Col = vec4(diffuseColor.rgb + diffuseColor.bgr
+            * cos(2.f*3.14159 * (vec3(2.f,1.2,1.2) * (lightIntensity * sin(u_Time.r * 0.005)) + vec3(0.f,0.2, 0.2))), diffuseColor.a);
 }

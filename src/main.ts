@@ -1,8 +1,10 @@
 import {vec3} from 'gl-matrix';
+import {vec4} from 'gl-matrix';
 import * as Stats from 'stats-js';
 import * as DAT from 'dat-gui';
 import Icosphere from './geometry/Icosphere';
 import Square from './geometry/Square';
+import Cube from './geometry/Cube';
 import OpenGLRenderer from './rendering/gl/OpenGLRenderer';
 import Camera from './Camera';
 import {setGL} from './globals';
@@ -13,12 +15,18 @@ import ShaderProgram, {Shader} from './rendering/gl/ShaderProgram';
 const controls = {
   tesselations: 5,
   'Load Scene': loadScene, // A function pointer, essentially
-};
+  'r' : 255,
+  'g' : 0,
+  'b' : 112,
+  'Shader' : 0
+}; 
 
 let icosphere: Icosphere;
-//let cube: Cube;
+let cube: Cube;
 let square: Square;
 let prevTesselations: number = 5;
+let time : vec4 = vec4.fromValues(0,0,0,0);
+let shady : ShaderProgram;
 
 //this loads the scene we will see
 function loadScene() {
@@ -26,8 +34,8 @@ function loadScene() {
   icosphere.create();
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
-  //cube = new Cube(figure out insides);
-  //cube.create();
+  cube = new Cube(vec3.fromValues(2, 0, 0));
+  cube.create();
 }
 
 function main() {
@@ -43,6 +51,13 @@ function main() {
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
   gui.add(controls, 'Load Scene');
+  gui.add(controls, 'Shader', 0, 1).step(1);
+
+  var col = gui.addFolder('Color Controls');
+  col.add(controls, 'r', 0, 255);
+  col.add(controls, 'g', 0, 255);
+  col.add(controls, 'b', 0, 255);
+
   //gui.add(controls, 'Shader'); figure out how to connect this to change the shader we use
   //to color our objects
 
@@ -70,10 +85,14 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
   ]);
 
-  //make my new shader here!
+  const myshader = new ShaderProgram([
+    new Shader(gl.VERTEX_SHADER, require('./shaders/myshader-vert.glsl')),
+    new Shader(gl.FRAGMENT_SHADER, require('./shaders/myshader-frag.glsl')),
+  ]);
 
   // This function will be called every frame
   function tick() {
+    time = vec4.fromValues(time[0] + 1,0,0,0);
     camera.update();
     stats.begin();
     gl.viewport(0, 0, window.innerWidth, window.innerHeight);
@@ -84,9 +103,15 @@ function main() {
       icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, prevTesselations);
       icosphere.create();
     }
-    renderer.render(camera, lambert, [
+    if (controls.Shader == 0) {
+      shady = lambert;
+    } else {
+      shady = myshader;
+    }
+    renderer.render(camera, shady, 
+      vec4.fromValues(controls.r / 255, controls.g / 255, controls.b / 255, 1), time, [
       icosphere,
-       square,
+       cube
     ]);
     stats.end();
 

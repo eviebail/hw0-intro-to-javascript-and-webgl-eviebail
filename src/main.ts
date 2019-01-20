@@ -16,14 +16,18 @@ const controls = {
 };
 
 let icosphere: Icosphere;
+//let cube: Cube;
 let square: Square;
 let prevTesselations: number = 5;
 
+//this loads the scene we will see
 function loadScene() {
   icosphere = new Icosphere(vec3.fromValues(0, 0, 0), 1, controls.tesselations);
   icosphere.create();
   square = new Square(vec3.fromValues(0, 0, 0));
   square.create();
+  //cube = new Cube(figure out insides);
+  //cube.create();
 }
 
 function main() {
@@ -39,6 +43,8 @@ function main() {
   const gui = new DAT.GUI();
   gui.add(controls, 'tesselations', 0, 8).step(1);
   gui.add(controls, 'Load Scene');
+  //gui.add(controls, 'Shader'); figure out how to connect this to change the shader we use
+  //to color our objects
 
   // get canvas and webgl context
   const canvas = <HTMLCanvasElement> document.getElementById('canvas');
@@ -64,6 +70,8 @@ function main() {
     new Shader(gl.FRAGMENT_SHADER, require('./shaders/lambert-frag.glsl')),
   ]);
 
+  //make my new shader here!
+
   // This function will be called every frame
   function tick() {
     camera.update();
@@ -78,7 +86,7 @@ function main() {
     }
     renderer.render(camera, lambert, [
       icosphere,
-      // square,
+       square,
     ]);
     stats.end();
 

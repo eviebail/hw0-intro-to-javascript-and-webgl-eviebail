@@ -1,3 +1,5 @@
+HI!! I worked on this on the lab computer, and when I pushed the code to my remote repository, for some reason its attributed to cawney4 somehow?? Even though I logged in using my account? Thanks for understanding!
+
 # CIS 566 Homework 0: Intro to Javascript and WebGL
 
 ## Objective
